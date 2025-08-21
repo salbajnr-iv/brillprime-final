@@ -8,20 +8,20 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "dev:web": "cd client && npm run dev",
-    "dev:mobile": "cd mobile && npm start",
-    "build": "npm run build:web && npm run build:server",
-    "build:web": "cd client && npm run build",
-    "build:mobile": "cd mobile && npm run build",
-    "build:server": "esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist --external:pg-native",
     "start": "NODE_ENV=production tsx server/index.ts",
-    "start:prod": "NODE_ENV=production node dist/index.js",
-    "check": "tsc",
-    "check:db": "node -e \"require('pg').Pool({connectionString:process.env.DATABASE_URL}).query('SELECT 1').then(()=>console.log('✅ Database connected')).catch(e=>{console.error('❌ Database error:',e.message);process.exit(1)})\"",
+    "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "deploy": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh",
-    "install:all": "npm install && cd client && npm install && cd .. && cd mobile && npm install && cd .."
+    "db:drop": "drizzle-kit drop",
+    "db:studio": "drizzle-kit studio",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:backend": "node scripts/run-backend-tests.js",
+    "test:api": "node scripts/api-health-checker.js",
+    "test:database": "node scripts/test-database-operations.js",
+    "test:validation": "node scripts/validate-api-database.js"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.10.2",
