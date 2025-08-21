@@ -3,63 +3,79 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDisplayName</key>
-	<string>BrillPrime</string>
-	<key>CFBundleExecutable</key>
-	<string>BrillPrime</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.brillprime.mobile</string>
-	<key>CFBundleName</key>
-	<string>BrillPrime</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
-	<key>CFBundleVersion</key>
-	<string>1</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
-	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>BrillPrime needs camera access to scan QR codes and capture documents for verification</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>BrillPrime needs location access to find nearby fuel stations and provide delivery services</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>BrillPrime needs location access to track deliveries and provide location-based services</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>BrillPrime needs microphone access for voice messages and support calls</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>BrillPrime needs photo library access to upload profile pictures and documents</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>BrillPrime uses Face ID for secure authentication and payment verification</string>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>armv7</string>
-	</array>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleLightContent</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleDisplayName</key>
+    <string>BrillPrime</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>localhost</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+            </dict>
+        </dict>
+    </dict>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>BrillPrime needs location access to show nearby merchants and provide delivery services.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>BrillPrime needs location access to provide real-time delivery tracking and location-based services.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>BrillPrime needs camera access to scan QR codes for payments and verify deliveries.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>BrillPrime needs photo library access to upload profile pictures and delivery proof photos.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>BrillPrime needs microphone access for voice messages in customer support chat.</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>BrillPrime uses Face ID for secure authentication and payment authorization.</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>BrillPrime uses Bluetooth for enhanced location services and device connectivity.</string>
+    <key>NSContactsUsageDescription</key>
+    <string>BrillPrime needs contacts access to help you find friends who are already using the app.</string>
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>armv7</string>
+    </array>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <false/>
+    <key>UIStatusBarStyle</key>
+    <string>UIStatusBarStyleLightContent</string>
+    <key>UIUserInterfaceStyle</key>
+    <string>Light</string>
 </dict>
 </plist>
