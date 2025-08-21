@@ -7,3 +7,15 @@ packages = ["postgresql"]
 
 [deployment]
 run = ["sh", "-c", "npm run dev"]
+
+[workflows]
+runButton = "Start BrillPrime"
+
+[[workflows.workflow]]
+name = "Start BrillPrime"
+author = 46707456
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
