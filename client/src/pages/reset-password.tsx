@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useRoute } from "wouter";
-import { ArrowLeft, Lock, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { NotificationModal } from "@/components/ui/notification-modal";
-import { authAPI } from "@/lib/auth";
-import logo from "../assets/images/logo.png";
+import logoImage from "../assets/images/logo.png";
 
 export default function ResetPasswordPage() {
   const [, params] = useRoute("/reset-password/:token");
@@ -17,9 +10,7 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const token = params?.token;
@@ -47,38 +38,9 @@ export default function ResetPasswordPage() {
     return errors;
   };
 
-  const resetPasswordMutation = useMutation({
-    mutationFn: async (data: { token: string; password: string }) => {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          token: data.token, 
-          newPassword: data.password 
-        }),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to reset password');
-      }
-      
-      return response.json();
-    },
-    onSuccess: () => {
-      setShowSuccessModal(true);
-    },
-    onError: (error: any) => {
-      setErrorMessage(error.message || "Failed to reset password. The link may have expired.");
-      setShowErrorModal(true);
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Clear previous validation errors
     setValidationErrors([]);
 
@@ -95,21 +57,38 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    // Submit the password reset
-    if (token) {
-      resetPasswordMutation.mutate({
-        token,
-        password: newPassword,
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          token, 
+          newPassword 
+        }),
       });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Password reset successfully! You can now sign in with your new password.');
+        setLocation('/signin');
+      } else {
+        alert(data.message || 'Failed to reset password. The link may have expired.');
+      }
+    } catch (error) {
+      console.error('Reset password error:', error);
+      alert('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleBackToForgotPassword = () => {
     setLocation("/forgot-password");
-  };
-
-  const handleGoToSignIn = () => {
-    setLocation("/signin");
   };
 
   if (!token) {
@@ -121,28 +100,28 @@ export default function ResetPasswordPage() {
       <div className="px-6 py-8 flex-1 flex flex-col justify-center">
         {/* Header */}
         <div className="flex items-center mb-8">
-          <Button
+          <button
             onClick={handleBackToForgotPassword}
-            variant="ghost"
-            size="icon"
-            className="mr-4 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200"
+            className="mr-4 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
           >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-xl font-bold text-[var(--brill-text)]">Reset Password</h1>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 className="text-xl font-bold text-[#2d3748]">Reset Password</h1>
         </div>
 
         {/* Logo */}
         <div className="text-center mb-8">
           <img 
-            src={logo} 
+            src={logoImage} 
             alt="Brillprime Logo" 
             className="w-16 h-16 mx-auto mb-4"
           />
-          <h2 className="text-2xl font-bold text-[var(--brill-secondary)] mb-2">
+          <h2 className="text-2xl font-bold text-[#2d3748] mb-2">
             Set New Password
           </h2>
-          <p className="text-[var(--brill-text-light)] text-sm">
+          <p className="text-[#718096] text-sm">
             Create a strong password to secure your account.
           </p>
         </div>
@@ -161,81 +140,94 @@ export default function ResetPasswordPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="newPassword" className="text-[var(--brill-text)] font-medium">
+            <label htmlFor="newPassword" className="text-[#2d3748] font-medium block">
               New Password
-            </Label>
+            </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--brill-text-light)] w-5 h-5" />
-              <Input
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#718096] w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path>
+              </svg>
+              <input
                 id="newPassword"
                 type={showNewPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Enter new password"
-                className="pl-12 pr-12 py-3 rounded-xl border-gray-300 focus:border-[var(--brill-primary)] focus:ring-[var(--brill-primary)]"
+                className="w-full pl-12 pr-14 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#4682B4] focus:border-[#4682B4] text-base"
                 required
               />
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#718096] hover:text-[#4682B4]"
                 onClick={() => setShowNewPassword(!showNewPassword)}
               >
                 {showNewPassword ? (
-                  <EyeOff className="h-4 w-4 text-[var(--brill-text-light)]" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
                 ) : (
-                  <Eye className="h-4 w-4 text-[var(--brill-text-light)]" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
                 )}
-              </Button>
+              </button>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-[var(--brill-text)] font-medium">
+            <label htmlFor="confirmPassword" className="text-[#2d3748] font-medium block">
               Confirm Password
-            </Label>
+            </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--brill-text-light)] w-5 h-5" />
-              <Input
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#718096] w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path>
+              </svg>
+              <input
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
-                className="pl-12 pr-12 py-3 rounded-xl border-gray-300 focus:border-[var(--brill-primary)] focus:ring-[var(--brill-primary)]"
+                className="w-full pl-12 pr-14 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#4682B4] focus:border-[#4682B4] text-base"
                 required
               />
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#718096] hover:text-[#4682B4]"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4 text-[var(--brill-text-light)]" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
                 ) : (
-                  <Eye className="h-4 w-4 text-[var(--brill-text-light)]" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
                 )}
-              </Button>
+              </button>
             </div>
           </div>
 
-          <LoadingButton
+          <button
             type="submit"
-            loading={resetPasswordMutation.isPending}
-            className="w-full py-3 rounded-xl bg-[var(--brill-primary)] hover:bg-[var(--brill-secondary)] text-white font-medium"
-            disabled={!newPassword || !confirmPassword}
+            disabled={!newPassword || !confirmPassword || isLoading}
+            className={`w-full py-3 rounded-xl text-white font-medium transition duration-200 ${
+              !newPassword || !confirmPassword || isLoading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-[#4682B4] hover:bg-[#3a70a0]'
+            }`}
           >
-            Reset Password
-          </LoadingButton>
+            {isLoading ? 'Resetting...' : 'Reset Password'}
+          </button>
         </form>
 
         {/* Password Requirements */}
         <div className="mt-6 p-4 bg-blue-50 rounded-xl">
-          <h4 className="text-sm font-medium text-[var(--brill-text)] mb-2">Password Requirements:</h4>
-          <ul className="text-xs text-[var(--brill-text-light)] space-y-1">
+          <h4 className="text-sm font-medium text-[#2d3748] mb-2">Password Requirements:</h4>
+          <ul className="text-xs text-[#718096] space-y-1">
             <li>• At least 8 characters long</li>
             <li>• Contains uppercase and lowercase letters</li>
             <li>• Contains at least one number</li>
@@ -243,31 +235,6 @@ export default function ResetPasswordPage() {
           </ul>
         </div>
       </div>
-
-      {/* Success Modal */}
-      <NotificationModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        type="success"
-        title="Password Successfully Changed!"
-        description="Your password has been reset successfully. You can now sign in with your new password."
-        actionText="Go to Sign In"
-        onAction={handleGoToSignIn}
-      />
-
-      {/* Error Modal */}
-      <NotificationModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        type="error"
-        title="Password Reset Failed"
-        description={errorMessage}
-        actionText="Try Again"
-        onAction={() => setShowErrorModal(false)}
-        showSecondaryAction={true}
-        secondaryActionText="Back to Forgot Password"
-        onSecondaryAction={handleBackToForgotPassword}
-      />
     </div>
   );
 }

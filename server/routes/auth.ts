@@ -384,7 +384,7 @@ router.post('/reset-password', async (req, res) => {
     // Update user password
     await db
       .update(users)
-      .set({ passwordHash })
+      .set({ password: passwordHash })
       .where(eq(users.id, user.id));
 
     // Delete used token

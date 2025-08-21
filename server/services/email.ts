@@ -135,6 +135,36 @@ class EmailService {
     }
   }
 
+  async sendPasswordReset(email: string, resetLink: string, userName?: string): Promise<boolean> {
+    try {
+      if (!this.isInitialized) {
+        throw new Error('Email service not initialized.');
+      }
+      if (!this.isValidEmail(email)) {
+        throw new Error('Invalid email address format');
+      }
+
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'BrillPrime <noreply@brillprime.com>',
+        to: email,
+        subject: 'Reset Your BrillPrime Password',
+        html: this.generatePasswordResetTemplate(resetLink, userName)
+      };
+
+      const info = await this.transporter.sendMail(mailOptions);
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Password reset email sent: %s', info.messageId);
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+      }
+
+      return true;
+    } catch (error: any) {
+      console.error('Failed to send password reset email:', error.message);
+      return false;
+    }
+  }
+
   async sendPasswordResetEmail(email: string, resetToken: string, userName?: string): Promise<boolean> {
     try {
       if (!this.isInitialized) {

@@ -1,52 +1,51 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { ArrowLeft, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useMutation } from "@tanstack/react-query";
-import { authAPI } from "@/lib/auth";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { SimpleNotificationModal } from "@/components/ui/notification-modal";
-import logo from "../assets/images/logo.png";
+
+// Using direct paths to avoid import issues during development
+const logoImage = "/src/assets/images/logo.png";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
 
-  const resetPasswordMutation = useMutation({
-    mutationFn: async (email: string) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email.trim()) {
+      alert('Please enter your email address');
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
       const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.trim() }),
       });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to send reset link');
-      }
-      
-      return response.json();
-    },
-    onSuccess: () => {
-      setShowEmailModal(true);
-    },
-    onError: (error: any) => {
-      setErrorMessage(error.message || "Failed to send reset link. Please try again.");
-      setShowErrorModal(true);
-    },
-  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      resetPasswordMutation.mutate(email);
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Password reset link sent! Please check your email.');
+        setLocation("/signin");
+      } else {
+        alert(data.message || 'Failed to send reset link. Please try again.');
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      alert('Network error. Please check your connection and try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,28 +53,26 @@ export default function ForgotPasswordPage() {
     setLocation("/signin");
   };
 
-  // Removed unused handleResendEmail function
-
   return (
     <div className="w-full max-w-md mx-auto min-h-screen bg-white flex flex-col">
       <div className="px-6 py-8 flex-1 flex flex-col justify-center">
         {/* Header */}
         <div className="flex items-center mb-8">
-          <Button
+          <button
             onClick={handleBackToSignIn}
-            variant="ghost"
-            size="icon"
-            className="mr-4 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200"
+            className="mr-4 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
           >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
           <h1 className="text-xl font-bold text-[#2d3748]">Forgot Password</h1>
         </div>
 
         {/* Logo */}
         <div className="text-center mb-8">
           <img 
-            src={logo} 
+            src={logoImage} 
             alt="Brillprime Logo" 
             className="w-16 h-16 mx-auto mb-4"
           />
@@ -90,31 +87,37 @@ export default function ForgotPasswordPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[#2d3748] font-medium">
+            <label htmlFor="email" className="text-[#2d3748] font-medium block">
               Email Address
-            </Label>
+            </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#718096] w-5 h-5" />
-              <Input
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#718096] w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+              </svg>
+              <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
-                className="pl-12 py-3 rounded-xl border-gray-300 focus:border-[#4682B4] focus:ring-[#4682B4]"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#4682B4] focus:border-[#4682B4] text-base"
                 required
               />
             </div>
           </div>
 
-          <LoadingButton
+          <button
             type="submit"
-            loading={resetPasswordMutation.isPending}
-            className="w-full py-3 rounded-xl bg-[#4682B4] hover:bg-[#3a70a0] text-white font-medium"
-            disabled={!email}
+            disabled={!email || isLoading}
+            className={`w-full py-3 rounded-xl text-white font-medium transition duration-200 ${
+              !email || isLoading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-[#4682B4] hover:bg-[#3a70a0]'
+            }`}
           >
-            Send Reset Link
-          </LoadingButton>
+            {isLoading ? 'Sending...' : 'Send Reset Link'}
+          </button>
         </form>
 
         {/* Footer */}
@@ -130,28 +133,6 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
       </div>
-
-      {/* Email Sent Modal */}
-      <SimpleNotificationModal
-        isOpen={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-        type="success"
-        title="Email Sent!"
-        message={`We've sent a password reset link to ${email}. Please check your email and click the link to reset your password.`}
-        confirmText="Back to Sign In"
-        onConfirm={handleBackToSignIn}
-      />
-
-      {/* Error Modal */}
-      <SimpleNotificationModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        type="error"
-        title="Reset Failed"
-        message={errorMessage}
-        confirmText="Try Again"
-        onConfirm={() => setShowErrorModal(false)}
-      />
     </div>
   );
 }
