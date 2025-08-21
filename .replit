@@ -1,0 +1,9 @@
+modules = ["nodejs-20", "java-graalvm22.3", "bash", "web"]
+run = "npm run dev"
+
+[nix]
+channel = "stable-25_05"
+packages = ["postgresql"]
+
+[deployment]
+run = ["sh", "-c", "npm run dev"]
