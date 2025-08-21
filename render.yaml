@@ -1,0 +1,34 @@
+
+services:
+  - type: web
+    name: brillprime-backend
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        fromService:
+          type: web
+          name: brillprime-backend
+          property: port
+      - key: DATABASE_URL
+        fromDatabase:
+          name: brillprime-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SESSION_SECRET
+        generateValue: true
+
+  - type: pserv
+    name: brillprime-db
+    databaseName: brillprime
+    plan: starter
+
+  - type: redis
+    name: brillprime-redis
+    plan: starter

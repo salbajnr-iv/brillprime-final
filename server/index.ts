@@ -601,6 +601,18 @@ if (process.env.NODE_ENV === 'production') {
 // Enhanced server startup
 const PORT = process.env.PORT || 5000;
 
+// Render-specific health check
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+    database: process.env.DATABASE_URL ? 'connected' : 'not configured',
+    redis: process.env.REDIS_URL ? 'connected' : 'memory store'
+  });
+});
+
 server.listen(Number(PORT), '0.0.0.0', async () => {
   console.log(`🚀 BrillPrime server running on http://0.0.0.0:${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
